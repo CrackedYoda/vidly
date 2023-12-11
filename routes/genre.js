@@ -1,87 +1,73 @@
-const express =  require('express');
-const router = express.Router();  //initializing express.Router() 
+const express = require("express");
+const mongoose = require("mongoose");
+const Joi = require("joi");
+const {Genres, validate} = require("../models/genre")
+const router = express.Router(); //initializing express.Router()
+
+mongoose
+  .connect("mongodb://localhost/vidly")
+  .then(() => {
+    console.log(" genre db running");
+  })
+  .catch((err) => console.log(err));
 
 
-let genres = [
-    { id: 1, name: 'hip-hop' },
-    { id: 2, name: 'afro' },
-    { id: 3, name: 'jazz' },
-    { id: 4, name: 'afrobeat' },
-    { id: 5, name: 'afro depression' }
+router.get("/", async (req, res) => {
+  let genre = await Genres.find().sort("name").select({ name: 1, _id: 0 });
+  try {
+    res.send(genre);
+  } catch (error) {
+    res.status(404).send(error.details[0].message);
+  }
+});
 
-]
+router.get("/:id", async (req, res) => {
+  //router.get() in place of app.get()
 
+  let genre = await Genres.findById(req.params.id)
+    .limit(1)
+    .select({ name: 1, _id: 0 });
+  try {
+    res.send(genre);
+  } catch (error) {
+    res.status(404).send(error.details[0].message);
+  }
+});
 
-router.get('/:id', (req, res) => {   //router.get() in place of app.get()
-    let genre = genres.find((item) => {
-        if (item.id === parseInt(req.params.id)) {
-            return item;
-        }
-    })
+router.post("/", async (req, res) => {
+  const { error, value } = validate(req.body);
+  if (error) {
+    return res.status(400).send(`a joi errror = ${error.details[0].message}`);
+  } else {
+   let newGenre =  new Genres({
+      name: req.body.genre,
+    });
+      newGenre.save()
+      .then(() => {
+        console.log("saved new genere");
+        res.send(newGenre);
+      })
+      .catch((err) => console.log(err));
 
-    if (!genre) {
-        return res.status(404).send('not found');
+    return;
+  }
+});
 
-    }
-    else {
-        return res.send(genre.name);
-    }
-})
+router.put("/:id", async (req, res) => {
+  await Genres.findByIdAndUpdate(req.params.id, {
+    $set: {
+      name: "naija-jazz",
+    },
+  })
+    .then(() => res.send("success"))
+    .catch((err) => console.log(err));
 
+});
 
-router.post('/', (req, res) => {
-
-
-    const { error, value } = validate(req.body);
-    if (error) {
-        return res.status(400).send(error.details[0].message);
-
-    }
-    else {
-        const genre = {
-            id: genres.length + 1,
-            genre: req.body.genre
-        }
-        genres.push(genre);
-        res.send(genre);
-        return;
-    }
-})
-router.put('/:id', (req, res) => {
-    const genre = genres.find((item) => { if (item.id === parseInt(req.params.id)) { return item; } })
-
-    const { error, value } = validate(req.body);
-
-    if (error) {
-        return res.status(400).send(error.details[0].message);
-
-    }
-    else {
-        genre.name = req.body.genre;
-        return res.send(genres);
-    }
-})
-
-router.delete('/:id', (req, res) => {
-    const genre = genres.find((item) => { if (item.id === parseInt(req.params.id)) { return item; } })
-
-    const index = genres.indexOf(genre);
-    genres.splice(index, 1);
-    return res.send(genres);
-})
-
-function validate(item) {
-
-    const genrenameschema = Joi.object({  // TO use joi validation you first create the validation schema 
-        genre: Joi.string()
-            .alphanum()
-            .min(3)
-            .max(10)
-            .required()
-    })
-
-    return genrenameschema.validate(item);
-
-}
+router.delete("/:id", async (req, res) => {
+  Genres.findByIdAndDelete(parseInt(req.params.id))
+    .then(() => res.send("deleted sucessfully"))
+    .catch((err) => res.send(err.details[0].message));
+});
 
 module.exports = router;
