@@ -9,7 +9,8 @@ const customer = require('./routes/customer')
 const port = 3000;
 const logger = require('./middleware/logger');
 const  movies = require('./routes/movies');
-const rentals =  require('./routes/rentals')
+const rentals =  require('./routes/rentals');
+const User = require('./routes/user');
 
 
 
@@ -21,9 +22,9 @@ app.use('/api/genres',genre)   //using the routes
 app.use('/api/customer',customer) 
 app.use('/',home)
 app.use('/api/movies',movies)
-app.use(logger);
+app.use(logger)
 app.use('/api/rentals', rentals)
-
+app.use('/api/user',User)
 
 
 

@@ -12,30 +12,6 @@ mongoose
   .catch((err) => console.log(err));
 
 
-
-// async function createCustomer() {
-//   const first = new Customers({
-//     isGold: true,
-//     name: "Nelson",
-//     phone: +2349011093724,
-//   });
-//   const second = new Customers({
-//     isGold: false,
-//     name: "Chisom",
-//     phone: +2349155751630,
-//   });
-//   const third = new Customers({
-//     isGold: true,
-//     name: "Yoda",
-//     phone: +2349035252001,
-//   });
-
-//   first.save();
-//   second.save();
-//   third.save();
-// }
-// // createCustomer();
-
 router.get("/", async (req, res) => {
   let customer = await Customers.find()
     .sort("name")

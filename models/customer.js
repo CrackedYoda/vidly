@@ -23,7 +23,7 @@ const Joi = require("joi");
     phone: { type: Number, minlength: 11, maxlength: 20 },
   });
   
-  const Customers = new mongoose.model("customer", customerSchema);
+  const Customers = mongoose.model("customer", customerSchema);
 
   exports.Validate = validate;
   exports.Customers = Customers;
