@@ -8,7 +8,7 @@ const rentalSchema = new mongoose.Schema({
       isGold: { type: Boolean, default: false },
       phone: { type: Number, min: 1 },
     }),
-    required: true,
+    required: true, 
   },
   movie: {
     type: new mongoose.Schema({
@@ -43,16 +43,6 @@ const rentalSchema = new mongoose.Schema({
 });
  const Rental = mongoose.model("rental",rentalSchema)
 
- function validateRental(item) {
-  const rentalValidation = Joi.object({
-    // TO use joi validation you first create the validation schema
-    customerid: Joi.string().required(),
-    movieid: Joi.string().required()
-  });
-
-  return rentalValidation.validate(item);
-}
 
 
 exports.Rental = Rental;
-exports.validateRental = validateRental;

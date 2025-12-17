@@ -1,15 +1,9 @@
 const express = require("express");
-const mongoose = require("mongoose");
+
 const Joi = require("joi");
 const {Genres, validate} = require("../models/genre")
 const router = express.Router(); //initializing express.Router()
 
-mongoose
-  .connect("mongodb://localhost/vidly")
-  .then(() => {
-    console.log(" genre db running");
-  })
-  .catch((err) => console.log(err));
 
 
 router.get("/", async (req, res) => {
@@ -54,14 +48,19 @@ router.post("/", async (req, res) => {
 });
 
 router.put("/:id", async (req, res) => {
-  await Genres.findByIdAndUpdate(req.params.id, {
-    $set: {
-      name: "naija-jazz",
-    },
-  })
-    .then(() => res.send("success"))
-    .catch((err) => console.log(err));
+  const genre = await Genres.findById(req.params.id);
+  if (!genre) return res.status(404).send("Genre not found");
 
+  const { error, value } = validate(req.body);
+  if (error) {
+    return res.status(400).send(`a joi error = ${error.details[0].message}`);
+  }
+
+  genre.set({
+    name: req.body.name,
+  });
+  await genre.save();
+  res.send(genre);
 });
 
 router.delete("/:id", async (req, res) => {

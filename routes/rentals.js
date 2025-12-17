@@ -1,17 +1,13 @@
 const express = require("express");
-const mongoose = require("mongoose");
+
 const Joi = require("joi");
 const { Rental, validateRental } = require("../models/rentals");
 const { Movies } = require("../models/movies");
 const { Customers } = require("../models/customer");
 const router = express.Router(); //initializing express.Router()
+const config = require("config");
 
-mongoose
-  .connect("mongodb://localhost/vidly")
-  .then(() => {
-    console.log("rental db running");
-  })
-  .catch((err) => console.log(err));
+
 
 router.get("/", async (req, res) => {
   let rental = await Rental.find();

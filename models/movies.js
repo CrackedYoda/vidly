@@ -27,18 +27,7 @@ const moviesSchema = new mongoose.Schema({
   } 
 });
 
-function validate(item) {
-    const movieValidation = Joi.object({
-      // TO use joi validation you first create the validation schema
-      title: Joi.string().alphanum().min(1).max(255).required(),
-      genre: required(),
-      numberInStock: Joi.number().min(1).max(255),
-      dailyRentalRate: Joi.number().min(1).max(255)
-    });
-  
-    return movieValidation.validate(item);
-  }
+
 const Movies = mongoose.model("movie", moviesSchema);
 
 exports.Movies = Movies;
-exports.Validate = validate;

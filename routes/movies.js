@@ -1,20 +1,15 @@
-const mongoose = require("mongoose");
+
 const express = require("express");
 const router = express.Router();
 const { Movies, Validate } = require("../models/movies");
 const { Genres } = require("../models/genre");
 
-mongoose
-  .connect("mongodb://localhost/vidly")
-  .then(() => {
-    console.log("movies db running");
-  })
-  .catch((err) => console.log(err));
+
 
 router.post("/newmovie", async (req, res) => {
   const { error, value } = Validate(req.body);
   if (error) {
-    res.status(400).send(error);
+    res.status(400).send(error.message);
   } else {
     let newMovie = new Movies({
       title: req.body.title,
@@ -28,6 +23,7 @@ router.post("/newmovie", async (req, res) => {
       .then(() => res.send(newMovie))
       .catch((err) => console.log(err));
     return;
+  
   }
 });
 

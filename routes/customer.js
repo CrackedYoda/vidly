@@ -1,86 +1,92 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const Joi = require("joi");
-const {Customers, Validate}= require('../models/customer')
-const router = express.Router(); //initializing express.Router()
+import express from "express";
+import { validateCustomerMiddleware } from "../middleware/validationFactory.js";
+import { Customers } from "../models/customer.js";
 
-mongoose
-  .connect("mongodb://localhost/vidly")
-  .then(() => {
-    console.log("customer db running");
-  })
-  .catch((err) => console.log(err));
-
+const router = express.Router();
 
 router.get("/", async (req, res) => {
-  let customer = await Customers.find()
-    .sort("name")
-    .select({ name: 1, _id: 0 });
-
   try {
-    res.send(customer);
+    const customers = await Customers.find()
+      .sort("name")
+      .select({ name: 1, _id: 0 });
+    res.send(customers);
   } catch (error) {
-    res.status(404).send(error.details[0].message);
+    res.status(500).send(error.message);
   }
 });
 
 router.get("/:id", async (req, res) => {
-  //router.get() in place of app.get()
-
-  let customer = await Customers.findById(req.params.id)
-    .limit(1)
-    .select({ name: 1, _id: 0 });
   try {
+    const customer = await Customers.findById(req.params.id)
+      .select({ name: 1, _id: 0 });
+    
+    if (!customer) {
+      return res.status(404).send("Customer not found");
+    }
+    
     res.send(customer);
   } catch (error) {
-    res.status(404).send(error.details[0].message);
+    res.status(500).send(error.message);
   }
-
-  return;
 });
 
-router.post("/", async (req, res) => {
-  const { error, value } = Validate(req.body);
-  if (error) {
-    return res.status(400).send(`a joi errror = ${error.details[0].message}`);
-  } else {
-    let newCustomer = new Customers({
-      isGold: req.body.isGold,
-      name: req.body.name,
-      phone: req.body.phone,
-    });
-    newCustomer
-      .save()
-      .then(() => {
-        console.log("saved new customer");
-      })
-      .catch((err) => console.log(err));
-
-    try {
-      res.send(newCustomer);
-    } catch (error) {
-      console.log(error.details[0].message);
+router.post("/", validateCustomerMiddleware, async (req, res) => {
+  try {
+    const existingCustomer = await Customers.findOne({ phone: req.validatedData.phone });
+    
+    if (existingCustomer) {
+      return res.status(400).send("Customer with this phone already exists");
     }
 
-    return;
+    const newCustomer = new Customers({
+      name: req.validatedData.name,
+      phone: req.validatedData.phone,
+      isGold: req.validatedData.isGold || false
+    });
+
+    await newCustomer.save();
+    res.send(newCustomer);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
-router.put("/:id", async (req, res) => {
-  await Customers.findByIdAndUpdate(req.params.id, {
-    $set: {
-      name: "naija-jazz",
-    },
-  })
-    .then(() => res.send("success"))
-    .catch((err) => console.log(err));
+router.put("/:id", validateCustomerMiddleware, async (req, res) => {
+  try {
+    const customer = await Customers.findByIdAndUpdate(
+      req.params.id,
+      {
+        $set: {
+          name: req.validatedData.name,
+          phone: req.validatedData.phone,
+          isGold: req.validatedData.isGold
+        }
+      },
+      { new: true }
+    );
+
+    if (!customer) {
+      return res.status(404).send("Customer not found");
+    }
+
+    res.send(customer);
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
 router.delete("/:id", async (req, res) => {
-  Customers.findByIdAndDelete(req.params.id)
-    .then(() => res.send("deleted sucessfully"))
-    .catch((err) => res.send(err.message));
+  try {
+    const customer = await Customers.findByIdAndDelete(req.params.id);
+    
+    if (!customer) {
+      return res.status(404).send("Customer not found");
+    }
+
+    res.send("Customer deleted successfully");
+  } catch (error) {
+    res.status(500).send(error.message);
+  }
 });
 
-
-module.exports = router;
+export default router;

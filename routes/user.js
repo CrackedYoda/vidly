@@ -1,39 +1,28 @@
-const express = require("express");
-const mongoose = require("mongoose");
-const Joi = require("joi");
-const { User, validateUser } = require("../models/user");
+import express from "express";
+import { validateUserMiddleware } from "../middleware/validationFactory.js";
+import { User } from "../models/user.js";
+
 const router = express.Router();
 
-mongoose
-  .connect("mongodb://localhost/vidly")
-  .then(() => {
-    console.log("user db running");
-  })
-  .catch((err) => console.log(err));
-
-router.post("/", async (req, res) => {
-  const { error, value } = validateUser(req.body);
-  if (error) {
-    return res.status(400).send(`a joi errror = ${error.details[0].message}`);
-  } else {
-    let user = await User.findOne({ email: req.body.userEmail });
-    if (user) {
-      res.send("user already exist");
-    } else {
-      const newUser = new User({
-        name: req.body.userName,
-        email: req.body.userEmail,
-        passsword: req.body.userPassword,
-      });
-
-      newUser
-        .save()
-        .then(() => {
-          res.send(newUser);
-        })
-        .catch((error) => console.log(error));
+router.post("/", validateUserMiddleware, async (req, res) => {
+  try {
+    let existingUser = await User.findOne({ email: req.validatedData.userEmail });
+    
+    if (existingUser) {
+      return res.status(400).send("User already exists");
     }
+    
+    const newUser = new User({
+      name: req.validatedData.userName,
+      email: req.validatedData.userEmail,
+      password: req.validatedData.userPassword
+    });
+
+    await newUser.save();
+    res.send(newUser);
+  } catch (error) {
+    res.status(500).send(error.message);
   }
 });
 
-module.exports = router;
+export default router;
