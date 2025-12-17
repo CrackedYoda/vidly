@@ -2,5 +2,9 @@
 
     "username" : {
 
-    "dev": "yoda" }
+    "dev": "yoda" },
+
+    "database": {
+        "url": "mongodb://localhost/vidly"
+    }
 }
