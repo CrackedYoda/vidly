@@ -1,6 +1,4 @@
-const mongoose = require("mongoose");
-const { genreSchema } = require("../models/genre");
-const Joi = require("joi");
+import mongoose from "mongoose";
 
 const moviesSchema = new mongoose.Schema({
   title: {
@@ -9,25 +7,30 @@ const moviesSchema = new mongoose.Schema({
     minLength: 1,
     maxLength: 255,
   },
-  genre: { type:  genreSchema, 
-    required: true },
-
+  genre: {
+    type: String,
+    enum: ['Action', 'Comedy', 'Drama', 'Horror', 'Romance', 'Sci-Fi', 'Documentary', 'Thriller', 'Animation', 'Fantasy'], 
+    required: true
+  },
   numberInStock: {
     type: Number,
     required: true,
     min: 0,
     max: 255
-    
   },
   dailyRentalRate: {
     type: Number,
     required: true,
-    min:0,
-    max:255
+    min: 0,
+    max: 255
+  },
+  owner:{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "user",
+    required: true
   } 
 });
 
-
 const Movies = mongoose.model("movie", moviesSchema);
 
-exports.Movies = Movies;
+export default Movies;

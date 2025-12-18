@@ -1,30 +1,28 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
 
 const userSchema = new mongoose.Schema({
-
-    name: {
-        type: String,
-        required: true,
-        minLength: 4,
-        maxLength: 50,
-      },
-      email: {
-        unique: true,
-        type: String,
-        maxLength: 255
-      },
-      password: {
-        type: String,
-        minLength:4,
-        maxLength:1024,
-        
-      }
+  userName: {
+    type: String,
+    required: true,
+    minLength: 4,
+    maxLength: 50,
+  },
+  userEmail: {
+    unique: true,
+    type: String,
+    maxLength: 255,
+  },
+  userPassword: {
+    type: String,
+    minLength: 4,
+    maxLength: 1024,
+  },
 
 
-})
-const User = mongoose.model("user",userSchema);
+  userPhone: { type: Number, minlength: 11, maxlength: 20 },
+});
 
 
-  exports.User = User;
- 
+const User = mongoose.model("user", userSchema);
+
+export default User;

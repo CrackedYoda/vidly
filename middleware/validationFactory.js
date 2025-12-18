@@ -3,7 +3,6 @@ import {
   validateMovie,
   validateUser,
   validateCustomer,
-  validateGenre
 } from '../validators/validatorschema.js';
 
 // Factory that returns middleware for a specific validator
@@ -28,4 +27,3 @@ export const validateRentalMiddleware = validate(validateRental);
 export const validateMovieMiddleware = validate(validateMovie);
 export const validateUserMiddleware = validate(validateUser);
 export const validateCustomerMiddleware = validate(validateCustomer);
-export const validateGenreMiddleware = validate(validateGenre);

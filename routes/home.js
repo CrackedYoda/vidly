@@ -1,8 +1,8 @@
-const express = require("express");
-const router = express.Router();
+import { Router } from 'express';
+const router = Router();
 
 router.get('/', (req, res) => { // using router.get for all routes 
-    res.send(genres)
+    res.send('hewlo world')
 });
 
-module.exports = router;
+export default router;

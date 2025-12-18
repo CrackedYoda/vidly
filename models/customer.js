@@ -1,20 +1,17 @@
-const mongoose = require("mongoose");
-const Joi = require("joi");
+import mongoose from "mongoose";
 
-
- 
-  const customerSchema = new mongoose.Schema({
-    isGold: { type: Boolean, required: true },
-    name: {
-      type: String,
-      required: true,
-      minLength: 4,
-      maxLength: 50,
-    },
-    phone: { type: Number, minlength: 11, maxlength: 20 },
-  });
+const customerSchema = new mongoose.Schema({
   
-  const Customers = mongoose.model("customer", customerSchema);
+  name: {
+    type: String,
+    required: true,
+    minLength: 4,
+    maxLength: 50,
+  },
+  phone: { type: Number, minlength: 11, maxlength: 20 },
+  isGold: { type: Boolean, required: true }
+});
 
-  exports.Validate = validate;
-  exports.Customers = Customers;
+const Customers = mongoose.model("customer", customerSchema);
+
+export default Customers;
