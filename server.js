@@ -1,6 +1,7 @@
 import express from 'express';
 import connectdb from './db/connectdb.js';
 import route from './routes/route.js';
+import cookieParser from 'cookie-parser';
 
 const app = express();
 const port = process.env.PORT || 4000;
@@ -11,7 +12,7 @@ connectdb();
 // Middleware - MUST be before routes
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
+app.use(cookieParser());
 // Routes
 app.use(route);
 

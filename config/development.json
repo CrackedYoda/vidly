@@ -6,5 +6,6 @@
 
     "database": {
         "url": "mongodb://localhost/vidly"
-    }
+    },
+    "JWT_SECRET": "noslen@576"
 }
