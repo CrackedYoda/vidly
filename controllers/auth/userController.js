@@ -34,14 +34,14 @@ export const addUser = async (req, res) => {
       salt
     );
 
-    const newUser = new User({
+    const newUser = await User.create({
       userName: req.validatedData.userName,
       userEmail: req.validatedData.userEmail,
       userPassword: hashedPassword,
       userPhone: req.validatedData.userPhone,
     });
 
-    await newUser.save();
+    
     res.status(201).send(newUser);
   } catch (error) {
     res.status(500).send(error.message);
@@ -71,33 +71,22 @@ export const getUserById = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUserPassword = async (req, res) => {
   try {
-    const updateData = {
-      userName: req.validatedData.userName,
-      userEmail: req.validatedData.userEmail,
-    };
-
-    // Hash password if provided
-    if (req.validatedData.userPassword) {
-      const salt = await bcrypt.genSalt(10);
-      updateData.userPassword = await bcrypt.hash(
-        req.validatedData.userPassword,
-        salt
-      );
-    }
-
-    const user = await User.findByIdAndUpdate(
-      req.params.id,
-      { $set: updateData },
-      { new: true }
-    ).select("-userPassword");
-
-    if (!user) {
+    const currentUser =  await User.findById(req.user.id);
+    if(!currentUser){
       return res.status(404).send("User not found");
     }
-
-    res.send(user);
+   const newPassword = await req.validatedData.userPassword;
+    const salt = await bcrypt.genSalt(12);
+    const hashedPassword = await bcrypt.hash(
+      newPassword,
+      salt
+    );
+    currentUser.set({ userPassword: hashedPassword });
+    await currentUser.save();
+    res.send("Password updated successfully");
+   
   } catch (error) {
     res.status(500).send(error.message);
   }
