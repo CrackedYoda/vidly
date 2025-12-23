@@ -1,11 +1,6 @@
 {
-
-    "username" : {
-
-    "dev": "yoda" },
-
     "database": {
-        "url": "mongodb://localhost/vidly"
+        "url": "DB_URL"
     },
-    "JWT_SECRET": "noslen@576"
+    "JWT_SECRET": "SECRET HERE"
 }
